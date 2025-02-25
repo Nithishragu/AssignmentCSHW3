@@ -37,6 +37,7 @@ namespace WindowsFormsApp1
         private void DisplayImage(Mat image, PictureBox pictureBox)
         {
             Image<Bgr, Byte> resizedImage = image.ToImage<Bgr, Byte>().Resize(pictureBox.Width, pictureBox.Height, Inter.Linear);
+
             pictureBox.Image?.Dispose();
             pictureBox.Image = resizedImage.ToBitmap();
         }
@@ -72,9 +73,18 @@ namespace WindowsFormsApp1
         {
             Image<Gray, Byte> grayImage = frame.ToImage<Bgr, Byte>().Convert<Gray, Byte>();
             Image<Gray, Byte> thresholdImage = grayImage.ThresholdBinary(new Gray(thresholdTrackBar.Value), new Gray(255));
-            pictureBoxThreshold.Image = thresholdImage.ToBitmap();
 
             int sliceWidth = thresholdImage.Width / 5;
+
+            for (int i = 1; i < 5; i++)
+            {
+                int x = i * sliceWidth;
+                thresholdImage.Draw(new LineSegment2D(new Point(x, 0), new Point(x, thresholdImage.Height)), new Gray(150), 1);
+            }
+
+            pictureBoxThreshold.Image?.Dispose();
+            pictureBoxThreshold.Image = thresholdImage.ToBitmap();
+
             int[] whiteCounts = new int[5];
             for (int i = 0; i < 5; i++)
             {
@@ -86,6 +96,8 @@ namespace WindowsFormsApp1
 
             DetermineDirection(whiteCounts);
         }
+
+
 
         private void DetermineDirection(int[] whiteCounts)
         {
